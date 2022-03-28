@@ -7,6 +7,7 @@ function App() {
   const [titulo, setTitulo] = useState('')
   const [autor, setAutor] = useState('')
   const [posts, setPosts] = useState([])
+  const [idPost, setIdPost] = useState('')
 
   // buscando dados em tempo real
   useEffect(() => {
@@ -23,8 +24,8 @@ function App() {
               Titulo: doc.data().Titulo
             })
           })
-          console.log('tudo certo')
-          console.log(lista)
+          // console.log('tudo certo')
+          // console.log(lista)
           setPosts(lista)
         })
         .catch(error => {
@@ -44,15 +45,48 @@ function App() {
         Titulo: titulo
       })
       .then(() => {
-        console.log('DADOS CADASTRADO COM SUCESSO!')
+        // console.log('DADOS CADASTRADO COM SUCESSO!')
         setTitulo('')
         setAutor('')
       })
       .catch(error => {
-        console.log('GEROU ALGUM ERRO: ' + error)
+        // console.log('GEROU ALGUM ERRO: ' + error)
       })
   }
 
+  async function editarPost() {
+    await firebase
+      .firestore()
+      .collection('posts')
+      .doc(idPost)
+      .update({
+        Autor: autor,
+        Titulo: titulo
+      })
+      .then(() => {
+        console.log('DADOS ATUALIZADOS')
+        setAutor('')
+        setTitulo('')
+        setIdPost('')
+      })
+      .catch(error => {
+        console.log(error)
+      })
+  }
+
+  async function deletarPost(id) {
+    await firebase
+      .firestore()
+      .collection('posts')
+      .doc(id)
+      .delete()
+      .then(() => {
+        alert('post excluido!')
+      })
+      .catch(error => {
+        console.log(error)
+      })
+  }
   // async function buscaPost() {
   // BUSCA UM DADO APENAS
   // await firebase
@@ -95,6 +129,12 @@ function App() {
     <div>
       <h1>ReactJS + Firebase :)</h1> <br />
       <div className="container">
+        <label>ID:</label>
+        <input
+          type="text"
+          value={idPost}
+          onChange={e => setIdPost(e.target.value)}
+        ></input>
         <label>Titulo: </label>
         <textarea
           type="text"
@@ -109,7 +149,8 @@ function App() {
           onChange={e => setAutor(e.target.value)}
           required
         />
-        <button onClick={handleAdd}>Cadastrar</button>
+        <button onClick={handleAdd}>Cadastrar</button> <br />
+        <button onClick={editarPost}>Editar</button>
         {/* <button>Buscar Post</button> <br /> */}
         <br />
         <br />
@@ -118,8 +159,13 @@ function App() {
             // console.log(dados)
             return (
               <li key={dados.id}>
+                <span>{dados.id}</span>
                 <p> Autor: {dados.Autor}</p>
                 <p> Titulo: {dados.Titulo}</p>
+                <button onClick={() => deletarPost(dados.id)}>
+                  Excluir
+                </button>{' '}
+                <br /> <br />
               </li>
             )
           })}
