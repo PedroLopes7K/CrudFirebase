@@ -1,5 +1,74 @@
+body {
+  display: flex;
+  justify-content: center;
+}
 .container {
   width: 400px;
   display: flex;
   flex-direction: column;
+
+}
+.container h1 {
+  text-align: center;
+}
+.container h1 span.react {
+  color: rgb(6, 232, 232);
+}
+.container h1 span.fire{
+  color: #fdc636;
+}
+
+.container label {
+  font-size: 16px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+.container input, textarea {
+  border-radius: 5px;
+  height: 20px;
+  border: 2px solid rgb(9, 221, 221);
+
+}
+
+.container div.buttons {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+ 
+}
+.container div.buttons button.cadastrar {
+  width: 250px;
+  padding: 8px;
+  background: none;
+  border-radius: 5px;
+  border: 3px solid rgb(32, 234, 143);
+  color:rgb(32, 234, 143);
+  font-size: 16px;
+}
+.container div.buttons button.editar {
+  width: 250px;
+  padding: 8px;
+  background: none;
+  border-radius: 5px;
+  border: 3px solid #fdc636 ;
+  color: #fdc636;
+  font-size: 16px;
+}
+
+.container ul button.deletar {
+  width: 100px;
+  padding: 8px;
+  background: none;
+  border-radius: 5px;
+  border: 3px solid red ;
+  color: red;
+  font-size: 16px;
+}
+.container ul {
+  display: flex;
+  flex-wrap: wrap;
+}
+.container ul li p {
+  font-size: 16px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }

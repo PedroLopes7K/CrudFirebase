@@ -4,7 +4,7 @@ import './style.css'
 import firebase from './firebaseConnection'
 
 function App() {
-  const [titulo, setTitulo] = useState('')
+  const [tarefa, setTarefa] = useState('')
   const [autor, setAutor] = useState('')
   const [posts, setPosts] = useState([])
   const [idPost, setIdPost] = useState('')
@@ -21,7 +21,7 @@ function App() {
             lista.push({
               id: doc.id,
               Autor: doc.data().Autor,
-              Titulo: doc.data().Titulo
+              Tarefa: doc.data().Tarefa
             })
           })
           // console.log('tudo certo')
@@ -42,11 +42,11 @@ function App() {
       .add({
         // cria um novo post com id unico aleatorio
         Autor: autor,
-        Titulo: titulo
+        Tarefa: tarefa
       })
       .then(() => {
         // console.log('DADOS CADASTRADO COM SUCESSO!')
-        setTitulo('')
+        setTarefa('')
         setAutor('')
       })
       .catch(error => {
@@ -61,12 +61,12 @@ function App() {
       .doc(idPost)
       .update({
         Autor: autor,
-        Titulo: titulo
+        Tarefa: tarefa
       })
       .then(() => {
         console.log('DADOS ATUALIZADOS')
         setAutor('')
-        setTitulo('')
+        setTarefa('')
         setIdPost('')
       })
       .catch(error => {
@@ -127,30 +127,42 @@ function App() {
 
   return (
     <div>
-      <h1>ReactJS + Firebase :)</h1> <br />
       <div className="container">
+        <h1>
+          <span className="react">ReactJS</span> +{' '}
+          <span className="fire">Firebase</span>{' '}
+        </h1>{' '}
+        <br />
         <label>ID:</label>
         <input
           type="text"
           value={idPost}
           onChange={e => setIdPost(e.target.value)}
         ></input>
-        <label>Titulo: </label>
-        <textarea
-          type="text"
-          value={titulo}
-          onChange={e => setTitulo(e.target.value)}
-          required
-        />
         <label>Autor: </label>
-        <input
+        <textarea
           type="text"
           value={autor}
           onChange={e => setAutor(e.target.value)}
           required
         />
-        <button onClick={handleAdd}>Cadastrar</button> <br />
-        <button onClick={editarPost}>Editar</button>
+        <label>Tarefa: </label>
+        <input
+          type="text"
+          value={tarefa}
+          onChange={e => setTarefa(e.target.value)}
+          required
+        />{' '}
+        <br />
+        <div className="buttons">
+          <button className="cadastrar" onClick={handleAdd}>
+            Cadastrar
+          </button>{' '}
+          <br />
+          <button className="editar" onClick={editarPost}>
+            Editar
+          </button>
+        </div>
         {/* <button>Buscar Post</button> <br /> */}
         <br />
         <br />
@@ -159,12 +171,15 @@ function App() {
             // console.log(dados)
             return (
               <li key={dados.id}>
-                <span>{dados.id}</span>
+                <span> ID: {dados.id}</span>
                 <p> Autor: {dados.Autor}</p>
-                <p> Titulo: {dados.Titulo}</p>
-                <button onClick={() => deletarPost(dados.id)}>
+                <p> Tarefa: {dados.Tarefa}</p>
+                <button
+                  className="deletar"
+                  onClick={() => deletarPost(dados.id)}
+                >
                   Excluir
-                </button>{' '}
+                </button>
                 <br /> <br />
               </li>
             )
