@@ -8,6 +8,10 @@ function App() {
   const [autor, setAutor] = useState('')
   const [posts, setPosts] = useState([])
   const [idPost, setIdPost] = useState('')
+  const [email, setEmail] = useState('')
+  const [senha, setSenha] = useState('')
+  const [usuario, setUsuario] = useState(false)
+  const [usuarioLogado, setUsuarioLogado] = useState({})
 
   // buscando dados em tempo real
   useEffect(() => {
@@ -33,6 +37,27 @@ function App() {
         })
     }
     LoadPosts()
+  }, [])
+
+  useEffect(() => {
+    async function verificaLogin() {
+      await firebase.auth().onAuthStateChanged(user => {
+        if (user) {
+          setUsuario(true)
+          setUsuarioLogado({
+            uid: user.uid,
+            email: user.email
+          })
+          // se existir um usuario logado entra aqui
+        } else {
+          setUsuario(false)
+          setUsuarioLogado({})
+          // se não possui usuario logado...
+        }
+      })
+    }
+
+    verificaLogin()
   }, [])
 
   async function handleAdd() {
@@ -87,43 +112,27 @@ function App() {
         console.log(error)
       })
   }
-  // async function buscaPost() {
-  // BUSCA UM DADO APENAS
-  // await firebase
-  //   .firestore()
-  //   .collection('posts')
-  //   .doc('123')
-  //   .get()
-  //   .then(info => {
-  //     setTitulo(info.data().Autor)
-  //     setAutor(info.data().Titulo)
-  //   })
-  //   .catch(() => {
-  //     console.log('DEU ALGUM ERRO')
-  //   })
+  async function cadastrarNovoUsuario() {
+    await firebase
+      .auth()
+      .createUserWithEmailAndPassword(email, senha)
+      .then(value => {
+        console.log('CADASTRADO COM SUCESSO')
+        console.log(value)
+      })
+      .catch(error => {
+        if (error.code === 'auth/weak-password') {
+          alert('Senha muito fraca...')
+        } else if (error.code === 'auth/email-already-in-use') {
+          alert('Email já cadastrado!')
+        }
+        console.log('ERROR' + error)
+      })
+  }
 
-  // BUSCA TODOS
-  // await firebase
-  //   .firestore()
-  //   .collection('posts')
-  //   .get()
-  //   .then(dados => {
-  //     let lista = []
-  //     dados.forEach(doc => {
-  //       lista.push({
-  //         id: doc.id,
-  //         Autor: doc.data().Autor,
-  //         Titulo: doc.data().Titulo
-  //       })
-  //     })
-  //     console.log('tudo certo')
-  //     console.log(lista)
-  //     setPosts(lista)
-  //   })
-  //   .catch(error => {
-  //     console.log('GEROU ALGUM ERRO: ' + error)
-  //   })
-  // }
+  async function logout() {
+    await firebase.auth().signOut()
+  }
 
   return (
     <div>
@@ -131,60 +140,86 @@ function App() {
         <h1>
           <span className="react">ReactJS</span> +{' '}
           <span className="fire">Firebase</span>{' '}
-        </h1>{' '}
+        </h1>
         <br />
-        <label>ID:</label>
+        <label> Email:</label>
         <input
           type="text"
-          value={idPost}
-          onChange={e => setIdPost(e.target.value)}
-        ></input>
-        <label>Autor: </label>
-        <textarea
-          type="text"
-          value={autor}
-          onChange={e => setAutor(e.target.value)}
-          required
+          value={email}
+          onChange={e => setEmail(e.target.value)}
         />
-        <label>Tarefa: </label>
+        <br />
+        <label> Senha:</label>
         <input
           type="text"
-          value={tarefa}
-          onChange={e => setTarefa(e.target.value)}
-          required
-        />{' '}
+          value={senha}
+          onChange={e => setSenha(e.target.value)}
+        />
         <br />
-        <div className="buttons">
-          <button className="cadastrar" onClick={handleAdd}>
-            Cadastrar
-          </button>{' '}
-          <br />
-          <button className="editar" onClick={editarPost}>
-            Editar
-          </button>
-        </div>
-        {/* <button>Buscar Post</button> <br /> */}
+        <button onClick={cadastrarNovoUsuario}>Cadastrar</button>
+        <button onClick={logout}>Sair da conta</button>
+        <br />
+        {usuario && (
+          <div className="container">
+            <label>ID:</label>
+            <input
+              type="text"
+              value={idPost}
+              onChange={e => setIdPost(e.target.value)}
+            ></input>
+            <label>Autor: </label>
+            <textarea
+              type="text"
+              value={autor}
+              onChange={e => setAutor(e.target.value)}
+              required
+            />
+            <label>Tarefa: </label>
+            <input
+              type="text"
+              value={tarefa}
+              onChange={e => setTarefa(e.target.value)}
+              required
+            />
+            <br />
+            <div className="buttons">
+              <button className="cadastrar" onClick={handleAdd}>
+                Cadastrar
+              </button>
+              <br />
+              <button className="editar" onClick={editarPost}>
+                Editar
+              </button>
+            </div>
+          </div>
+        )}
         <br />
         <br />
-        <ul>
-          {posts.map(dados => {
-            // console.log(dados)
-            return (
-              <li key={dados.id}>
-                <span> ID: {dados.id}</span>
-                <p> Autor: {dados.Autor}</p>
-                <p> Tarefa: {dados.Tarefa}</p>
-                <button
-                  className="deletar"
-                  onClick={() => deletarPost(dados.id)}
-                >
-                  Excluir
-                </button>
-                <br /> <br />
-              </li>
-            )
-          })}
-        </ul>
+        {usuario ? (
+          <ul>
+            {posts.map(dados => {
+              // console.log(dados)
+              return (
+                <li key={dados.id}>
+                  <span> ID: {dados.id}</span>
+                  <p> Autor: {dados.Autor}</p>
+                  <p> Tarefa: {dados.Tarefa}</p>
+                  <button
+                    className="deletar"
+                    onClick={() => deletarPost(dados.id)}
+                  >
+                    Excluir
+                  </button>
+                  <br /> <br />
+                </li>
+              )
+            })}
+          </ul>
+        ) : (
+          <div>
+            <h3>FAÇA O LOGIN</h3>
+          </div>
+        )}
       </div>
     </div>
   )
